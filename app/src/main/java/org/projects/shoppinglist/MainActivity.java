@@ -1,7 +1,9 @@
 package org.projects.shoppinglist;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -9,21 +11,31 @@ import android.util.SparseBooleanArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MyDialogFragment.OnPositiveListener, AdapterView.OnItemSelectedListener {
+    MyDialogFragment dialog;
+    Context context;
+
     private final int RESULT_CODE_PREFERENCES = 1;
 
-    ArrayAdapter<String> adapter;
+    ArrayAdapter<Product> adapter;
     ListView listView;
-    ArrayList<String> bag = new ArrayList<>();
+    ArrayList<Product> bag = new ArrayList<>();
+
+    //Save copys of delted products
+    Map<Integer, Product> saveProductCopy = new HashMap<Integer, Product>();
 
     public ArrayAdapter getMyAdapter()
     {
@@ -40,20 +52,27 @@ public class MainActivity extends AppCompatActivity {
 
         //do we have some saved state?
         if (savedInstanceState != null) {
-            System.out.println("test");
-            ArrayList<String> savedBag = savedInstanceState.getStringArrayList("savedBag");
-            if (savedBag != null) { //did we save something
-                System.out.println("test deeper");
+            ArrayList<Product> savedBag = savedInstanceState.getParcelableArrayList("savedBag");
+            if (savedBag != null) {
                 bag = savedBag;
             }
         }
+
+
+        final Spinner spinner = findViewById(R.id.spinner1);
+
+        ArrayAdapter<CharSequence> adapterSpinner = ArrayAdapter.createFromResource(
+                this, R.array.variant_array, android.R.layout.simple_spinner_item);
+        adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapterSpinner);
+        spinner.setOnItemSelectedListener(this);
 
         //getting our listiew - you can check the ID in the xml to see that it
         //is indeed specified as "list"
         listView = findViewById(R.id.list);
         //here we create a new adapter linking the bag and the
         //listview
-        adapter =  new ArrayAdapter<>(this,
+        adapter =  new ArrayAdapter<Product>(this,
                 android.R.layout.simple_list_item_multiple_choice,bag );
 
         //setting the adapter on the listview
@@ -69,10 +88,55 @@ public class MainActivity extends AppCompatActivity {
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                adapter.add(addText.getText().toString() + " x " + addQty.getText().toString());
-                Log.d("Bag","Items in back: "+bag.size());
+                if (addText.length() > 0 && addQty.length() > 0) {
+                    adapter.add(new Product(addText.getText().toString(), Integer.parseInt(addQty.getText().toString()), spinner.getSelectedItem().toString()));
+                }
             }
         });
+    }
+
+    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+        parent.getItemAtPosition(pos);
+    }
+
+    public void onNothingSelected(AdapterView<?> parent) {
+        // Another interface callback
+    }
+
+
+    //This method is the one we need to implement from the
+    //interface. It will be called when the user has clicked the
+    //positive button (yes button):
+    @Override
+    public void onPositiveClicked() {
+        bag.clear();
+        listView.clearChoices();
+        adapter.notifyDataSetChanged();
+        Toast.makeText(this,"All items cleared", Toast.LENGTH_SHORT).show();
+
+    }
+
+    //This is the event handler for the show button
+    //This is specified in the xml file that this should
+    //be the event handler
+    public void showDialog() {
+        //showing our dialog.
+
+        dialog = new MyDialog();
+        //Here we show the dialog
+        //The tag "MyFragement" is not important for us.
+        dialog.show(getFragmentManager(), "MyFragment");
+    }
+
+    public static class MyDialog extends MyDialogFragment {
+
+        @Override
+        protected void negativeClick() {
+            //Here we override the method and can now do something
+            Toast toast = Toast.makeText(getActivity(),
+                    "You keep your items", Toast.LENGTH_SHORT);
+            toast.show();
+        }
     }
 
     //This method updates our text views.
@@ -92,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 		/* Here we put code now to save the state */
-        outState.putStringArrayList("savedBag", bag);
+        outState.putParcelableArrayList("savedBag", bag);
     }
 
 
@@ -118,6 +182,21 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    public void saveDeletedProducts(int pos, Product product) {
+        saveProductCopy.put(pos, product);
+    }
+
+    public void reAddSavedProducts() {
+        for(Map.Entry<Integer, Product> entry : saveProductCopy.entrySet()){
+            int key = entry.getKey();
+            Product value = entry.getValue();
+
+            // Re add products to list
+            bag.add(key, value);
+        }
+        saveProductCopy.clear();
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -139,16 +218,29 @@ public class MainActivity extends AppCompatActivity {
 
             for(int i = bag.size() -1; i > -1; i--) {
                 if (position.get(i)) {
+                    saveDeletedProducts(i, bag.get(i));
                     bag.remove(i);
                 }
             }
+
+            Snackbar snackbar = Snackbar
+                    .make(listView, "Name saved", Snackbar.LENGTH_LONG)
+                    .setAction("UNDO", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            reAddSavedProducts();
+                            adapter.notifyDataSetChanged();
+                        }
+                    });
+
+            snackbar.show();
+
             listView.clearChoices();
             adapter.notifyDataSetChanged();
+
         }
         if (id == R.id.action_clear) {
-            bag.clear();
-            adapter.notifyDataSetChanged();
-            Toast.makeText(this,"All items cleared", Toast.LENGTH_SHORT).show();
+            showDialog();
             return true;
         }
 
