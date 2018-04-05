@@ -224,7 +224,7 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
             }
 
             Snackbar snackbar = Snackbar
-                    .make(listView, "Name saved", Snackbar.LENGTH_LONG)
+                    .make(listView, "Deleted", Snackbar.LENGTH_LONG)
                     .setAction("UNDO", new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -232,8 +232,9 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
                             adapter.notifyDataSetChanged();
                         }
                     });
-
-            snackbar.show();
+            if (saveProductCopy.size() > 0) {
+                snackbar.show();
+            }
 
             listView.clearChoices();
             adapter.notifyDataSetChanged();
