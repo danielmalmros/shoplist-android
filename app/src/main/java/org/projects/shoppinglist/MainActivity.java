@@ -21,8 +21,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity implements MyDialogFragment.OnPositiveListener, AdapterView.OnItemSelectedListener {
     MyDialogFragment dialog;
@@ -211,6 +213,22 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
             startActivityForResult(intent,RESULT_CODE_PREFERENCES);
             //notice the 1 here - this is the code we then listen for in the
             //onActivityResult
+        }
+
+        if (id == R.id.action_share) {
+            StringBuilder sb = new StringBuilder();
+            Intent intent = new Intent(Intent.ACTION_SEND);
+
+            sb.append("Shopping list:\n");
+            for (Product bagItem : bag) {
+                sb.append(bagItem.toString());
+                sb.append("\n");
+            }
+
+            String productList = sb.toString();
+            intent.putExtra(Intent.EXTRA_TEXT, productList);
+            intent.setType("text/plain");
+            startActivity(intent);
         }
 
         if (id == R.id.action_delete) {
