@@ -52,4 +52,29 @@ public class Product implements Parcelable {
         variant = in.readString();
         quantity = in.readInt();
     }
+    // Get
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getVariant() {
+        return variant;
+    }
+
+    // Set
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setVariant(String variant) {
+        this.variant = variant;
+    }
 }
