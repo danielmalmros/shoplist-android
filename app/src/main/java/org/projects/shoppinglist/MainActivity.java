@@ -19,6 +19,8 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.crashlytics.android.Crashlytics;
 import com.firebase.ui.database.FirebaseListAdapter;
 import com.firebase.ui.database.FirebaseListOptions;
 import com.google.firebase.FirebaseApp;
@@ -62,6 +64,9 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        // Uncomment the line below to force crash the application, to see the crash repport in Crashlytics
+        // Crashlytics.getInstance().crash();
+
         //do we have some saved state?
         //if (savedInstanceState != null) {
             //ArrayList<Product> savedBag = savedInstanceState.getParcelableArrayList("savedBag");
@@ -86,8 +91,6 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
 
             }
         };
-
-
 
         final Spinner spinner = findViewById(R.id.spinner1);
 
