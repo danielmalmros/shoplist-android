@@ -22,13 +22,13 @@
         android:layout_gravity="left"
         android:text="@string/myName"/>
 
+
     <TextView
         android:id="@+id/myGender"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
-        android:text="@string/myGender"/>
-
+        android:text="@string/myGender" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -36,20 +36,20 @@
         android:orientation="horizontal">
 
         <LinearLayout
-            android:focusable="true"
-            android:focusableInTouchMode="true"
             android:layout_width="0px"
-            android:layout_height="0px"/>
+            android:layout_height="0px"
+            android:focusable="true"
+            android:focusableInTouchMode="true" />
 
         <EditText
             android:id="@+id/addText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="3"
             android:hint="Item name"
-            android:singleLine="true"
-            android:nextFocusUp="@id/addText"
             android:nextFocusLeft="@id/addText"
-            android:layout_weight="3"/>
+            android:nextFocusUp="@id/addText"
+            android:singleLine="true" />
 
 
         <EditText
@@ -58,28 +58,31 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="Qty"
-            android:text="1"
+            android:inputType="number"
             android:singleLine="true"
-            android:inputType="number" />
+            android:text="1" />
 
         <Spinner
             android:id="@+id/spinner1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:entries="@array/variant_array"/>
-
-        <Button
-            android:id="@+id/addButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/add_to_bag" />
+            android:entries="@array/variant_array" />
 
     </LinearLayout>
 
+    <Button
+        android:id="@+id/addButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/fui_bgPhone"
+        android:textColor="@color/white_text"
+        android:text="@string/add_to_bag"
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="20dp"/>
 
 
     <ListView
         android:id="@+id/list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 </LinearLayout>

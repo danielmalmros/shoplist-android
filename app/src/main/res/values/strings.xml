@@ -5,10 +5,10 @@
     <string name="action_clear">Clear List</string>
     <string name="welcome_to_my_shopping_list">Welcome to my shopping list</string>
     <string name="welcome_to_my_shopping_list_landscape">Welcome to my landscape shopping list</string>
-    <string name="add_to_bag">Add to bag</string>
+    <string name="add_to_bag">Add to shopping list</string>
     <string name="enterName">Enter name</string>
-    <string name="myName">Your name: </string>
-    <string name="myGender">Your gender:</string>
+    <string name="myName">Shopping list for: </string>
+    <string name="myGender">Gender:</string>
     <string name="male">Male</string>
     <string name="confirmation">Confirmation</string>
     <string name="areYouSure">Are you sure?</string>

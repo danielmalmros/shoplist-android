@@ -125,6 +125,9 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
                     firebase.push().setValue(p); //see later for this reference
                     getMyAdapter().notifyDataSetChanged();
 
+                    // Clear text from input field when item is added
+                    addText.setText("");
+
                     //adapter.add(new Product(addText.getText().toString(), Integer.parseInt(addQty.getText().toString()), spinner.getSelectedItem().toString()));
                 }
             }
