@@ -42,7 +42,6 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
 
     FirebaseListAdapter<Product> adapter;
     ListView listView;
-    //ArrayList<Product> bag = new ArrayList<>();
 
     //Save copys of delted products
     Map<String, Product> saveProductCopy = new HashMap<String, Product>();
@@ -58,23 +57,20 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
+
+        /*************************************************************************************************
+         * Uncomment the line below to force crash the application, to see the crash repport in Crashlytics.
+         * Only use this line if you need to force crash the application.
+         *************************************************************************************************/
+        // Crashlytics.getInstance().crash();
+
         setContentView(R.layout.activity_main);
-        //Needed to get the toolbar to work on older versions
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Uncomment the line below to force crash the application, to see the crash repport in Crashlytics
-        // Crashlytics.getInstance().crash();
-
-        //do we have some saved state?
-        //if (savedInstanceState != null) {
-            //ArrayList<Product> savedBag = savedInstanceState.getParcelableArrayList("savedBag");
-            //if (savedBag != null) {
-                //bag = savedBag;
-            //}
-        //}
-
+        // Firebase connected to shopping list ListView from adapter
         Query query = FirebaseDatabase.getInstance().getReference().child("items");
 
         FirebaseListOptions<Product> options = new FirebaseListOptions.Builder<Product>()
@@ -86,12 +82,20 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
             @Override
             protected void populateView(View v, Product product, int position) {
                 TextView textView = (TextView) v.findViewById(android.R.id.text1);
-                //textView.setTextSize(24); //modify this if you want different size
                 textView.setText(product.toString());
-
             }
         };
 
+        // Getting listiew
+        listView = findViewById(R.id.list);
+
+        // Setting the adapter on the listview
+        listView.setAdapter(adapter);
+
+        // Setting the choice mode - meaning in this case we can select more than one item
+        listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+
+        // Setting the spinner for the shopping list
         final Spinner spinner = findViewById(R.id.spinner1);
 
         ArrayAdapter<CharSequence> adapterSpinner = ArrayAdapter.createFromResource(
@@ -100,35 +104,21 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
         spinner.setAdapter(adapterSpinner);
         spinner.setOnItemSelectedListener(this);
 
-        //getting our listiew - you can check the ID in the xml to see that it
-        //is indeed specified as "list"
-        listView = findViewById(R.id.list);
-        //here we create a new adapter linking the bag and the
-        //listview
-        //adapter =  new ArrayAdapter<Product>(this, android.R.layout.simple_list_item_multiple_choice,bag );
-
-        //setting the adapter on the listview
-        listView.setAdapter(adapter);
-        //here we set the choice mode - meaning in this case we can
-        //only select one item at a time.
-        listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-
         final EditText addText = findViewById(R.id.addText);
         final EditText addQty = findViewById(R.id.addQty);
 
+        // Creating the add to list button
         Button addButton =  findViewById(R.id.addButton);
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (addText.length() > 0 && addQty.length() > 0) {
                     Product p = new Product(addText.getText().toString(), Integer.parseInt(addQty.getText().toString()), spinner.getSelectedItem().toString());
-                    firebase.push().setValue(p); //see later for this reference
+                    firebase.push().setValue(p);
                     getMyAdapter().notifyDataSetChanged();
 
                     // Clear text from input field when item is added
                     addText.setText("");
-
-                    //adapter.add(new Product(addText.getText().toString(), Integer.parseInt(addQty.getText().toString()), spinner.getSelectedItem().toString()));
                 }
             }
         });
@@ -142,10 +132,13 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
         // Another interface callback
     }
 
+    // Show dialog to delete all item in shopping list.
+    public void showDialog() {
+        dialog = new MyDialog();
+        dialog.show(getFragmentManager(), "MyFragment");
+    }
 
-    //This method is the one we need to implement from the
-    //interface. It will be called when the user has clicked the
-    //positive button (yes button):
+    // Positive button (yes button):
     // Clear database with data.
     @Override
     public void onPositiveClicked() {
@@ -153,28 +146,15 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
         listView.clearChoices();
         adapter.notifyDataSetChanged();
         Toast.makeText(this,"All items cleared", Toast.LENGTH_SHORT).show();
-
     }
 
-    //This is the event handler for the show button
-    //This is specified in the xml file that this should
-    //be the event handler
-    public void showDialog() {
-        //showing our dialog.
-
-        dialog = new MyDialog();
-        //Here we show the dialog
-        //The tag "MyFragement" is not important for us.
-        dialog.show(getFragmentManager(), "MyFragment");
-    }
-
+    // Negativ button (no button)
+    // This makes sure we do not delete the hole shopping list.
     public static class MyDialog extends MyDialogFragment {
-
         @Override
         protected void negativeClick() {
-            //Here we override the method and can now do something
             Toast toast = Toast.makeText(getActivity(),
-                    "You keep your items", Toast.LENGTH_SHORT);
+                    "Your shopping is still here!", Toast.LENGTH_SHORT);
             toast.show();
         }
     }
@@ -190,15 +170,6 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
         else
             myGender.setText(R.string.female);
     }
-
-    //This method is called before our activity is destroyed
-    //@Override
-    //protected void onSaveInstanceState(Bundle outState) {
-        //super.onSaveInstanceState(outState);
-		/* Here we put code now to save the state */
-        //outState.putParcelableArrayList("savedBag", bag);
-    //}
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -23,12 +23,6 @@
         android:layout_weight="1"
         android:orientation="vertical">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/welcome_to_my_shopping_list_landscape"/>
-
         <EditText
             android:id="@+id/addText"
             android:layout_width="match_parent"
