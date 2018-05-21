@@ -5,26 +5,21 @@ import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 
-//extending the standard preference fragment
+// Here we are extending the standard preference fragment.
 public class SettingsPreference extends PreferenceFragment {
 
-    //These values are specifed in the prefs.xml file
-    //and needs to correspond exactly to those in the prefs.xml file
-    //You can check the key values in that file and check that it
-    //corresponds to the keys defined here.
+    // These values are specified in the preference.xml file
+    // They needs to correspond exactly to those in the preference.xml file.
     private static String SETTINGS_GENDERKEY = "male";
     private static String SETTINGS_NAMEKEY = "name";
 
-    //note these are static methods - meaning they always exists
-    //so we do not have to create an instance of this class to
-    //get the values.
-    public static boolean isMale(Context context)
-    {
+    // This is static methods - meaning they always exists.
+    // Then we don't have to create an instance of this class to get the values.
+    public static boolean isMale(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTINGS_GENDERKEY, true);
     }
 
-    public static String getName(Context context)
-    {
+    public static String getName(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context).getString(SETTINGS_NAMEKEY, "");
     }
 
@@ -32,8 +27,8 @@ public class SettingsPreference extends PreferenceFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //adding the preferences from the xml
-        //so this will in fact be the whole view.
+
+        // Adding the preferences from the preference.xml.
         addPreferencesFromResource(R.xml.preference);
     }
 }

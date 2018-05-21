@@ -8,10 +8,11 @@ public class Product implements Parcelable {
     String variant;
     int quantity;
 
-    public Product() {} //Empty constructor we will need later!
+    public Product() {
+        // Empty constructor.
+    }
 
-    public Product(String name, int quantity, String variant)
-    {
+    public Product(String name, int quantity, String variant) {
         this.name = name;
         this.variant = variant;
         this.quantity = quantity;
@@ -19,7 +20,7 @@ public class Product implements Parcelable {
 
     @Override
     public String toString() {
-        return name+" "+ quantity +" "+ variant;
+        return name + " " + quantity + " " + variant;
     }
 
     @Override
@@ -52,6 +53,7 @@ public class Product implements Parcelable {
         variant = in.readString();
         quantity = in.readInt();
     }
+
     // Get
     public int getQuantity() {
         return quantity;

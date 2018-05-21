@@ -43,15 +43,14 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
     FirebaseListAdapter<Product> adapter;
     ListView listView;
 
-    //Save copys of delted products
+    // Save copies of deleted products in HashMap, so that we can get key and value.
     Map<String, Product> saveProductCopy = new HashMap<String, Product>();
 
-    public FirebaseListAdapter<Product> getMyAdapter()
-    {
+    public FirebaseListAdapter<Product> getMyAdapter() {
         return adapter;
     }
 
-    // Initialize Database
+    // Initialize Database from Firebase.
     DatabaseReference mRootRef = FirebaseDatabase.getInstance().getReference();
     DatabaseReference firebase = mRootRef.child("items");
 
@@ -70,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Firebase connected to shopping list ListView from adapter
+        // Firebase connected to shopping list ListView from adapter.
         Query query = FirebaseDatabase.getInstance().getReference().child("items");
 
         FirebaseListOptions<Product> options = new FirebaseListOptions.Builder<Product>()
@@ -86,29 +85,31 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
             }
         };
 
-        // Getting listiew
+        // Getting ListView.
         listView = findViewById(R.id.list);
 
-        // Setting the adapter on the listview
+        // Setting the adapter on the ListView.
         listView.setAdapter(adapter);
 
-        // Setting the choice mode - meaning in this case we can select more than one item
+        // Setting the choice mode - meaning in this case we can select more than one item.
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
-        // Setting the spinner for the shopping list
+        // Setting the spinner for the shopping list.
         final Spinner spinner = findViewById(R.id.spinner1);
 
+        // Array adapter for spinner items.
         ArrayAdapter<CharSequence> adapterSpinner = ArrayAdapter.createFromResource(
                 this, R.array.variant_array, android.R.layout.simple_spinner_item);
         adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapterSpinner);
         spinner.setOnItemSelectedListener(this);
 
+        // Getting the add item and add quantities id.
         final EditText addText = findViewById(R.id.addText);
         final EditText addQty = findViewById(R.id.addQty);
 
         // Creating the add to list button
-        Button addButton =  findViewById(R.id.addButton);
+        Button addButton = findViewById(R.id.addButton);
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -124,12 +125,13 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
         });
     }
 
+    // Get the position of the selected item in spinner.
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
         parent.getItemAtPosition(pos);
     }
 
     public void onNothingSelected(AdapterView<?> parent) {
-        // Another interface callback
+        // Interface callback.
     }
 
     // Show dialog to delete all item in shopping list.
@@ -138,20 +140,21 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
         dialog.show(getFragmentManager(), "MyFragment");
     }
 
-    // Positive button (yes button):
+    // Positive button (yes button).
     // Clear database with data.
     @Override
     public void onPositiveClicked() {
         mRootRef.setValue(null);
         listView.clearChoices();
         adapter.notifyDataSetChanged();
-        Toast.makeText(this,"All items cleared", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "All items cleared", Toast.LENGTH_SHORT).show();
     }
 
-    // Negativ button (no button)
+    // Negative button (no button).
     // This makes sure we do not delete the hole shopping list.
     public static class MyDialog extends MyDialogFragment {
         @Override
+        // Shows a toast that all items are still in the shopping list.
         protected void negativeClick() {
             Toast toast = Toast.makeText(getActivity(),
                     "Your shopping is still here!", Toast.LENGTH_SHORT);
@@ -159,117 +162,135 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
         }
     }
 
-    //This method updates our text views.
-    public void updateUI(String name, boolean male)
-    {
+    // This method updates our text views for settings options.
+    public void updateUI(String name, boolean male) {
         TextView myName = findViewById(R.id.myName);
         TextView myGender = findViewById(R.id.myGender);
         myName.setText(name);
-        if (male)
+
+        if (male) {
             myGender.setText(R.string.male);
-        else
+        } else {
             myGender.setText(R.string.female);
+        }
     }
 
+    // Inflate the menu - this adds items to the action bar if it is present.
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
+    // Shows a toast to the user about the settings done.
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode==RESULT_CODE_PREFERENCES) //the code means we came back from settings
-        {
-            //I can can these methods like this, because they are static
+        if (requestCode == RESULT_CODE_PREFERENCES) {
             boolean male = SettingsPreference.isMale(this);
             String name = SettingsPreference.getName(this);
-            String message = "Welcome, "+name+", You are male? "+male;
-            Toast toast = Toast.makeText(this,message,Toast.LENGTH_LONG);
+            String message = "Welcome, " + name + ", You are male? " + male;
+            Toast toast = Toast.makeText(this, message, Toast.LENGTH_LONG);
             toast.show();
-            updateUI(name,male);
+            updateUI(name, male);
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    // This function save the deleted item to the created hash map at the top.
     public void saveDeletedProducts(String pos, Product product) {
         saveProductCopy.put(pos, product);
     }
 
+    // This function is created to add the deleted item back if user choose UNDO.
     public void reAddSavedProducts() {
-        for(Map.Entry<String, Product> entry : saveProductCopy.entrySet()){
+
+        // A simple loop to get the key and value back from the stored HashMap of deleted items.
+        for (Map.Entry<String, Product> entry : saveProductCopy.entrySet()) {
             String key = entry.getKey();
             Product value = entry.getValue();
 
-            // Re add products to list
+            // Using the key and value to re add the deleted item to Firebase.
             firebase.child(key).setValue(value);
         }
+
+        // Clear everything stored in HashMap when products are re added.
         saveProductCopy.clear();
     }
 
+    // Handler for each options buttons.
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+        // Handle action bar item clicks here.
+        // The action bar will automatically handle clicks, if we specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+        // Starts the settingsActivity and listen to the result.
         if (id == R.id.action_settings) {
-            //Start our settingsactivity and listen to result - i.e.
-            //when it is finished.
-            Intent intent = new Intent(this,SettingsActivity.class);
-            startActivityForResult(intent,RESULT_CODE_PREFERENCES);
-            //notice the 1 here - this is the code we then listen for in the
-            //onActivityResult
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivityForResult(intent, RESULT_CODE_PREFERENCES);
         }
 
+        // Starts the sharing of the shopping list.
         if (id == R.id.action_share) {
             StringBuilder sb = new StringBuilder();
             Intent intent = new Intent(Intent.ACTION_SEND);
 
+            // Looping over each item in shopping list and then adding them to message.
             sb.append("Shopping list:\n");
             for (Product bagItem : adapter.getSnapshots()) {
                 sb.append(bagItem.toString());
+
+                // Creates a new line for each item.
                 sb.append("\n");
             }
 
+            // Converting everything into a string.
             String productList = sb.toString();
             intent.putExtra(Intent.EXTRA_TEXT, productList);
             intent.setType("text/plain");
             startActivity(intent);
         }
 
+        // Clear individual item or multiple.
         if (id == R.id.action_delete) {
+
+            // Creates a array of checked item and there position.
             SparseBooleanArray position = listView.getCheckedItemPositions();
 
-            for(int i = adapter.getCount() -1; i > -1; i--) {
+            // Loop is created so that it is possible to iterate over each selected item in the list.
+            // Getting the index of the items to have the ref of it.
+            for (int i = adapter.getCount() - 1; i > -1; i--) {
                 if (position.get(i)) {
 
-                    //int i = listView.getCheckedItemPosition();
+                    // if the position is true we call the saveDeletedProducts function and handle the rest from there.
                     saveDeletedProducts(getMyAdapter().getRef(i).getKey(), adapter.getItem(i));
-                    //bag.remove(i);
                     getMyAdapter().getRef(i).setValue(null);
                 }
             }
 
+            // Creating a snackbar so that we can select UNDO if we NOT want to delete the item.
             Snackbar snackbar = Snackbar
-                    .make(listView, "Deleted", Snackbar.LENGTH_LONG)
+                    .make(listView, "Deleted item..", Snackbar.LENGTH_LONG)
                     .setAction("UNDO", new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
+
+                            // If UNDO is pressed then we call the re Add fucntion.
                             reAddSavedProducts();
                             adapter.notifyDataSetChanged();
                         }
                     });
+
+            // Checking the saveProductCopy is not empty before showing the snackbar.
             if (saveProductCopy.size() > 0) {
                 snackbar.show();
             }
 
             listView.clearChoices();
             adapter.notifyDataSetChanged();
-
         }
+
+        // Clear entire shopping list
         if (id == R.id.action_clear) {
             showDialog();
             return true;
@@ -279,12 +300,14 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
     }
 
 
-    @Override protected void onStart() {
+    @Override
+    protected void onStart() {
         super.onStart();
         adapter.startListening();
     }
 
-    @Override protected void onStop() {
+    @Override
+    protected void onStop() {
         super.onStop();
         adapter.stopListening();
     }
