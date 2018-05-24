@@ -113,14 +113,14 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (addText.length() > 0 && addQty.length() > 0) {
-                    Product p = new Product(addText.getText().toString(), Integer.parseInt(addQty.getText().toString()), spinner.getSelectedItem().toString());
-                    firebase.push().setValue(p);
-                    getMyAdapter().notifyDataSetChanged();
+            if (addText.length() > 0 && addQty.length() > 0) {
+                Product p = new Product(addText.getText().toString(), Integer.parseInt(addQty.getText().toString()), spinner.getSelectedItem().toString());
+                firebase.push().setValue(p);
+                getMyAdapter().notifyDataSetChanged();
 
-                    // Clear text from input field when item is added
-                    addText.setText("");
-                }
+                // Clear text from input field when item is added
+                addText.setText("");
+            }
             }
         });
     }
@@ -270,16 +270,16 @@ public class MainActivity extends AppCompatActivity implements MyDialogFragment.
 
             // Creating a snackbar so that we can select UNDO if we NOT want to delete the item.
             Snackbar snackbar = Snackbar
-                    .make(listView, "Deleted item..", Snackbar.LENGTH_LONG)
-                    .setAction("UNDO", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
+                .make(listView, "Deleted item..", Snackbar.LENGTH_LONG)
+                .setAction("UNDO", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
 
-                            // If UNDO is pressed then we call the re Add fucntion.
-                            reAddSavedProducts();
-                            adapter.notifyDataSetChanged();
-                        }
-                    });
+                    // If UNDO is pressed then we call the re Add fucntion.
+                    reAddSavedProducts();
+                    adapter.notifyDataSetChanged();
+                    }
+                });
 
             // Checking the saveProductCopy is not empty before showing the snackbar.
             if (saveProductCopy.size() > 0) {
